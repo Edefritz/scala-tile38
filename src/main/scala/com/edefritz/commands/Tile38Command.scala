@@ -13,6 +13,9 @@ import io.circe.parser
 import io.lettuce.core.codec.StringCodec
 import io.lettuce.core.protocol.{CommandArgs, ProtocolKeyword}
 
+import scala.concurrent.Future
+import scala.jdk.FutureConverters._
+
 trait Tile38Command {
   def argsSeqToRedisArgs(seq: Seq[Any]): CommandArgs[String, String] = {
     val codec = StringCodec.UTF8
@@ -55,5 +58,12 @@ trait Tile38Command {
   ): String = {
     val redisArgs = argsSeqToRedisArgs(args)
     tile38Client.dispatch(commandType, redisArgs)
+  }
+
+  def execAsync(commandType: ProtocolKeyword, args: Seq[Any])(implicit
+      tile38Client: Tile38Client
+  ): Future[String] = {
+    val redisArgs = argsSeqToRedisArgs(args)
+    tile38Client.dispatchAsync(commandType, redisArgs).asScala
   }
 }

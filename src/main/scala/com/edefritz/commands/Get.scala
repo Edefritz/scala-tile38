@@ -2,9 +2,12 @@ package com.edefritz.commands
 
 import com.edefritz.client.Tile38Client
 import com.edefritz.errors.Tile38Error
-import com.edefritz.model.{HashResponse, PointResponse}
+import com.edefritz.model.{BoundsResponse, HashResponse, PointResponse}
 import io.circe.parser
 import io.lettuce.core.protocol.CommandType
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 case class Get(key: String, id: String)(implicit tile38Client: Tile38Client)
     extends Tile38Command {
@@ -38,8 +41,8 @@ case class Get(key: String, id: String)(implicit tile38Client: Tile38Client)
     }*/
   }
 
+  // TODO: Make the same thing work for object, point and bounds
   def asHash(precision: Int): Either[Tile38Error, HashResponse] = {
-
     _args = compileArgs() ++ Seq("HASH", precision)
     val response = super.exec(commandType, _args)
     parser.decode[HashResponse](response) match {
@@ -49,18 +52,27 @@ case class Get(key: String, id: String)(implicit tile38Client: Tile38Client)
     }
   }
 
-  def asBounds(): String = {
+  // TODO: make futures work
+  def asBounds(): Future[Either[Tile38Error, BoundsResponse]] = {
     _args = compileArgs() :+ "BOUNDS"
-    super.exec(commandType, _args)
+    val response = super.execAsync(commandType, _args)
+
+    response.map(r => {
+      parser.decode[BoundsResponse](r) match {
+        case Left(_) =>
+          Left(super.decodeTile38Error(r))
+        case Right(boundsResponse: BoundsResponse) => Right(boundsResponse)
+      }
+    })
   }
 
-  def asPoint(): Option[PointResponse] = {
+  def asPoint(): Either[Tile38Error, PointResponse] = {
     _args = compileArgs() :+ "POINT"
-    val point = super.exec(commandType, _args)
+    val response = super.exec(commandType, _args)
 
-    parser.decode[PointResponse](point) match {
-      case Left(_)                             => None
-      case Right(pointResponse: PointResponse) => Some(pointResponse)
+    parser.decode[PointResponse](response) match {
+      case Left(_)                             => Left(super.decodeTile38Error(response))
+      case Right(pointResponse: PointResponse) => Right(pointResponse)
     }
   }
 }
