@@ -1,20 +1,13 @@
 package com.edefritz.commands
 
 import com.edefritz.client.Tile38Client
-import com.edefritz.errors.{
-  Tile38Error,
-  Tile38GenericError,
-  Tile38IdNotFoundError,
-  Tile38KeyNotFoundError,
-  Tile38ResponseDecodingError
-}
+import com.edefritz.errors._
 import io.circe.generic.codec.DerivedAsObjectCodec.deriveCodec
 import io.circe.parser
 import io.lettuce.core.codec.StringCodec
 import io.lettuce.core.protocol.{CommandArgs, ProtocolKeyword}
 
 import scala.concurrent.Future
-import scala.jdk.FutureConverters._
 
 trait Tile38Command {
   def argsSeqToRedisArgs(seq: Seq[Any]): CommandArgs[String, String] = {
@@ -64,6 +57,6 @@ trait Tile38Command {
       tile38Client: Tile38Client
   ): Future[String] = {
     val redisArgs = argsSeqToRedisArgs(args)
-    tile38Client.dispatchAsync(commandType, redisArgs).asScala
+    tile38Client.dispatchAsync(commandType, redisArgs)
   }
 }

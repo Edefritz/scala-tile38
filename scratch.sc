@@ -1,5 +1,9 @@
 import com.edefritz.client.Tile38Client
 
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.language.postfixOps
+import scala.util.{Failure, Success}
+
 val connection = "redis://localhost:9851"
 
 val client = new Tile38Client(connection)
@@ -46,6 +50,12 @@ val hash = client.get("fleet", "2").withFields().asHash(5)
 val obj2 = client.get("fleet", "2").asObject()
 val point = client.get("fleet", "2").asPoint()
 val bounds = client.get("fleet", "2").asBounds()
+
+bounds.onComplete {
+    case Success(t) => println(t)
+    case Failure(e) => println(e)
+}
+
 val fields = client.get("fleet", "2").withFields().asObject()
 
 val errorHash = client.get("flee", "2").withFields().asHash(5)

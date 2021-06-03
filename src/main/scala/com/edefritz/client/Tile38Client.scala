@@ -2,13 +2,16 @@ package com.edefritz.client
 
 import com.edefritz.commands.{Get, Output, Set}
 import com.edefritz.model.{JsonType, OutputType, RespType}
+import io.lettuce.core.RedisClient
 import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.api.async.RedisAsyncCommands
 import io.lettuce.core.api.sync.RedisCommands
 import io.lettuce.core.codec.StringCodec
 import io.lettuce.core.output.ValueOutput
 import io.lettuce.core.protocol.{CommandArgs, ProtocolKeyword}
-import io.lettuce.core.{RedisClient, RedisFuture}
+
+import scala.concurrent.Future
+import scala.jdk.FutureConverters.CompletionStageOps
 
 class Tile38Client(connectionString: String) {
   lazy val codec: StringCodec = StringCodec.UTF8;
@@ -48,8 +51,8 @@ class Tile38Client(connectionString: String) {
   def dispatchAsync(
       commandType: ProtocolKeyword,
       args: CommandArgs[String, String]
-  ): RedisFuture[String] = {
-    async.dispatch(commandType, new ValueOutput(codec), args)
+  ): Future[String] = {
+    async.dispatch(commandType, new ValueOutput(codec), args).asScala
   }
 
   def close() = {

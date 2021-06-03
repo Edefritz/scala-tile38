@@ -31,6 +31,7 @@ case class Get(key: String, id: String)(implicit tile38Client: Tile38Client)
     this
   }
 
+  // TODO: take care of parsing geojson
   def asObject(): Any = {
     _args = compileArgs() :+ "OBJECT"
     val response = super.exec(commandType, _args)
@@ -41,15 +42,16 @@ case class Get(key: String, id: String)(implicit tile38Client: Tile38Client)
     }*/
   }
 
-  // TODO: Make the same thing work for object, point and bounds
-  def asHash(precision: Int): Either[Tile38Error, HashResponse] = {
+  def asHash(precision: Int): Future[Either[Tile38Error, HashResponse]] = {
     _args = compileArgs() ++ Seq("HASH", precision)
-    val response = super.exec(commandType, _args)
-    parser.decode[HashResponse](response) match {
-      case Left(_) =>
-        Left(super.decodeTile38Error(response))
-      case Right(hashResponse: HashResponse) => Right(hashResponse)
-    }
+    val response = super.execAsync(commandType, _args)
+    response.map(r => {
+      parser.decode[HashResponse](r) match {
+        case Left(_) =>
+          Left(super.decodeTile38Error(r))
+        case Right(hashResponse: HashResponse) => Right(hashResponse)
+      }
+    })
   }
 
   // TODO: make futures work
@@ -66,13 +68,15 @@ case class Get(key: String, id: String)(implicit tile38Client: Tile38Client)
     })
   }
 
-  def asPoint(): Either[Tile38Error, PointResponse] = {
+  def asPoint(): Future[Either[Tile38Error, PointResponse]] = {
     _args = compileArgs() :+ "POINT"
-    val response = super.exec(commandType, _args)
+    val response = super.execAsync(commandType, _args)
+    response.map(r => {
+      parser.decode[PointResponse](r) match {
+        case Left(_)                             => Left(super.decodeTile38Error(r))
+        case Right(pointResponse: PointResponse) => Right(pointResponse)
+      }
+    })
 
-    parser.decode[PointResponse](response) match {
-      case Left(_)                             => Left(super.decodeTile38Error(response))
-      case Right(pointResponse: PointResponse) => Right(pointResponse)
-    }
   }
 }

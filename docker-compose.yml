@@ -1,0 +1,9 @@
+version: "3"
+
+services:
+  tile38:
+    image: tile38/tile38:1.24.0
+    container_name: tile38
+    command: tile38-server -vv -p 9851
+    ports:
+      - 9851:9851
