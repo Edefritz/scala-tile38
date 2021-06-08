@@ -2,7 +2,12 @@ package com.edefritz.commands
 
 import com.edefritz.client.Tile38Client
 import com.edefritz.errors.Tile38Error
-import com.edefritz.model.{BoundsResponse, HashResponse, PointResponse}
+import com.edefritz.model.{
+  BoundsResponse,
+  HashResponse,
+  ObjectResponse,
+  PointResponse
+}
 import io.circe.parser
 import io.lettuce.core.protocol.CommandType
 
@@ -32,14 +37,16 @@ case class Get(key: String, id: String)(implicit tile38Client: Tile38Client)
   }
 
   // TODO: take care of parsing geojson
-  def asObject(): Any = {
+  def asObject(): Future[Either[Tile38Error, ObjectResponse]] = {
     _args = compileArgs() :+ "OBJECT"
-    val response = super.exec(commandType, _args)
-    response
-    /*parser.decode[BaseResponse](string) match {
-      //case Left(_) => BaseResponse(ok = false, PointResponse("", List()), "")
-      case Right(value) => value
-    }*/
+    val response = super.execAsync(commandType, _args)
+    response.map(r => {
+      parser.decode[ObjectResponse](r) match {
+        case Left(_) =>
+          Left(super.decodeTile38Error(r))
+        case Right(objectResponse: ObjectResponse) => Right(objectResponse)
+      }
+    })
   }
 
   def asHash(precision: Int): Future[Either[Tile38Error, HashResponse]] = {
@@ -54,7 +61,6 @@ case class Get(key: String, id: String)(implicit tile38Client: Tile38Client)
     })
   }
 
-  // TODO: make futures work
   def asBounds(): Future[Either[Tile38Error, BoundsResponse]] = {
     _args = compileArgs() :+ "BOUNDS"
     val response = super.execAsync(commandType, _args)

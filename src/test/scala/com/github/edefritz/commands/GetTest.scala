@@ -1,21 +1,10 @@
 package com.github.edefritz.commands
 
 import com.edefritz.client.Tile38Client
-import com.edefritz.model.{
-  Bounds,
-  BoundsResponse,
-  HashResponse,
-  LatLon,
-  Point,
-  PointResponse
-}
-import org.scalamock.scalatest.MockFactory
+import com.edefritz.model._
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures.whenReady
 import org.scalatest.flatspec.AnyFlatSpec
-
-import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.Future
 
 class GetTest extends AnyFlatSpec with BeforeAndAfterAll {
 
@@ -23,6 +12,12 @@ class GetTest extends AnyFlatSpec with BeforeAndAfterAll {
 
   override def beforeAll(): Unit = {
     client.set("fleet", "1").point(1, 2).exec()
+    client
+      .set("fleet", "2")
+      .geojson(
+        "{\"type\": \"Point\", \"coordinates\": [2, 1]}"
+      )
+      .exec()
   }
 
   "Set" should "return a correct bounds response" in {
@@ -72,7 +67,25 @@ class GetTest extends AnyFlatSpec with BeforeAndAfterAll {
       case Left(_) => fail()
       case Right(value) =>
         assert(
-          value.hash == "s01mt"
+          value.hash == expectedOutput
+        )
+    }
+  }
+
+  // TODO: Make sure this also reflects geojson feature with properties
+  it should "return a correct object response" in {
+    // ARRANGE
+    val expectedOutput = GeoJsonPoint(Coordinates(2, 1))
+
+    // ACT
+    val response = client.get("fleet", "2").asObject()
+
+    // ASSERT
+    whenReady(response) {
+      case Left(_) => fail()
+      case Right(value) =>
+        assert(
+          value.`object` == expectedOutput
         )
     }
   }
