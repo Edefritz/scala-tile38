@@ -11,6 +11,8 @@ object Coordinates {
 
 // TODO: this is not a full geojson yet, it only reflects individual features
 sealed trait GeoJson
+case class Feature(geometry: GeoJson) extends GeoJson
+case class FeatureCollection(features: List[GeoJson]) extends GeoJson
 case class GeoJsonPoint(coordinates: Coordinates) extends GeoJson
 case class LineString(coordinates: List[Coordinates]) extends GeoJson
 case class MultiPoint(coordinates: List[Coordinates]) extends GeoJson
@@ -24,6 +26,8 @@ object GeoJson {
   implicit val decoder: Decoder[GeoJson] = Decoder.instance { c =>
     c.downField("type").as[String].map(_.toLowerCase).flatMap {
       case "point"              => c.as[GeoJsonPoint]
+      case "feature"            => c.as[Feature]
+      case "featurecollection"  => c.as[FeatureCollection]
       case "linestring"         => c.as[LineString]
       case "multipoint"         => c.as[MultiPoint]
       case "multilinestring"    => c.as[MultiLineString]

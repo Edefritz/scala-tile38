@@ -13,14 +13,26 @@ class GetTest extends AnyFlatSpec with BeforeAndAfterAll {
   override def beforeAll(): Unit = {
     client.set("fleet", "1").point(1, 2).exec()
     client
-      .set("fleet", "2")
+      .set("fleet", "geojson-feature")
+      .geojson(
+        "{\"type\": \"Feature\", \"properties\": {}, \"geometry\": {\"type\": \"Point\", \"coordinates\": [2, 1]}}"
+      )
+      .exec()
+    client
+      .set("fleet", "geojson-point")
       .geojson(
         "{\"type\": \"Point\", \"coordinates\": [2, 1]}"
       )
       .exec()
+    client
+      .set("fleet", "geojson-featurecollection")
+      .geojson(
+        "{\"type\": \"FeatureCollection\", \"features\": [{\"type\": \"Feature\", \"properties\": {}, \"geometry\": {\"type\": \"Point\", \"coordinates\": [2, 1]}}]}"
+      )
+      .exec()
   }
 
-  "Set" should "return a correct bounds response" in {
+  "GetTest" should "return a correct bounds response" in {
     // ARRANGE
     val expectedOutput = Bounds(ne = LatLon(1, 2), sw = LatLon(1, 2))
 
@@ -72,13 +84,12 @@ class GetTest extends AnyFlatSpec with BeforeAndAfterAll {
     }
   }
 
-  // TODO: Make sure this also reflects geojson feature with properties
-  it should "return a correct object response" in {
+  it should "return a correct object feature response" in {
     // ARRANGE
-    val expectedOutput = GeoJsonPoint(Coordinates(2, 1))
+    val expectedOutput = Feature(GeoJsonPoint(Coordinates(2, 1)))
 
     // ACT
-    val response = client.get("fleet", "2").asObject()
+    val response = client.get("fleet", "geojson-feature").asObject()
 
     // ASSERT
     whenReady(response) {
@@ -89,5 +100,43 @@ class GetTest extends AnyFlatSpec with BeforeAndAfterAll {
         )
     }
   }
+
+  it should "return a correct object point response" in {
+    // ARRANGE
+    val expectedOutput = GeoJsonPoint(Coordinates(2, 1))
+
+    // ACT
+    val response = client.get("fleet", "geojson-point").asObject()
+
+    // ASSERT
+    whenReady(response) {
+      case Left(_) => fail()
+      case Right(value) =>
+        assert(
+          value.`object` == expectedOutput
+        )
+    }
+  }
+
+  it should "return a correct object featurecollection response" in {
+    // ARRANGE
+
+    val expectedOutput =
+      FeatureCollection(List(Feature(GeoJsonPoint(Coordinates(2, 1)))))
+
+    // ACT
+    val response = client.get("fleet", "geojson-featurecollection").asObject()
+
+    // ASSERT
+    whenReady(response) {
+      case Left(_) => fail()
+      case Right(value) =>
+        assert(
+          value.`object` == expectedOutput
+        )
+    }
+  }
+
+  // TODO: Make sure geojson properties are parsed too
 
 }
