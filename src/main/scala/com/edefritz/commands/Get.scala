@@ -36,7 +36,6 @@ case class Get(key: String, id: String)(implicit tile38Client: Tile38Client)
     this
   }
 
-  // TODO: take care of parsing geojson
   def asObject(): Future[Either[Tile38Error, ObjectResponse]] = {
     _args = compileArgs() :+ "OBJECT"
     val response = super.execAsync(commandType, _args)

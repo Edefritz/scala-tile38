@@ -86,7 +86,7 @@ class GetTest extends AnyFlatSpec with BeforeAndAfterAll {
 
   it should "return a correct object feature response" in {
     // ARRANGE
-    val expectedOutput = Feature(GeoJsonPoint(Coordinates(2, 1)))
+    val expectedOutput = Feature(GeoJsonPoint(Coordinates(2, 1)), Some(Map()))
 
     // ACT
     val response = client.get("fleet", "geojson-feature").asObject()
@@ -122,7 +122,9 @@ class GetTest extends AnyFlatSpec with BeforeAndAfterAll {
     // ARRANGE
 
     val expectedOutput =
-      FeatureCollection(List(Feature(GeoJsonPoint(Coordinates(2, 1)))))
+      FeatureCollection(
+        List(Feature(GeoJsonPoint(Coordinates(2, 1)), Some(Map())))
+      )
 
     // ACT
     val response = client.get("fleet", "geojson-featurecollection").asObject()
@@ -138,5 +140,7 @@ class GetTest extends AnyFlatSpec with BeforeAndAfterAll {
   }
 
   // TODO: Make sure geojson properties are parsed too
+  // The issue is that properties can be Map[String, Any] but circe cannot decode Any
+  // https://github.com/circe/circe/issues/216
 
 }

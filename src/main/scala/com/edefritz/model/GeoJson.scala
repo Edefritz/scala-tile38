@@ -11,7 +11,11 @@ object Coordinates {
 
 // TODO: this is not a full geojson yet, it only reflects individual features
 sealed trait GeoJson
-case class Feature(geometry: GeoJson) extends GeoJson
+// TODO: find out how to deal with different property types
+case class Feature(
+    geometry: GeoJson,
+    properties: Option[Map[String, String]] = None
+) extends GeoJson
 case class FeatureCollection(features: List[GeoJson]) extends GeoJson
 case class GeoJsonPoint(coordinates: Coordinates) extends GeoJson
 case class LineString(coordinates: List[Coordinates]) extends GeoJson
