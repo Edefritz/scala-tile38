@@ -2,6 +2,7 @@ package com.edefritz.model
 
 import io.circe.Decoder
 import io.circe.generic.auto._
+import io.circe.generic.semiauto.deriveDecoder
 
 case class Coordinates(x: Double, y: Double)
 object Coordinates {
@@ -25,6 +26,10 @@ case class Polygon(coordinates: List[List[Coordinates]]) extends GeoJson
 case class MultiPolygon(coordinates: List[List[List[Coordinates]]])
     extends GeoJson
 case class GeometryCollection(geometries: List[GeoJson]) extends GeoJson
+
+object Polygon {
+  implicit val decoder: Decoder[Polygon] = deriveDecoder
+}
 
 object GeoJson {
   implicit val decoder: Decoder[GeoJson] = Decoder.instance { c =>
