@@ -8,6 +8,9 @@ import org.scalatest.concurrent.ScalaFutures.whenReady
 import org.scalatest.flatspec.AnyFlatSpec
 import org.scalatest.time.{Millis, Seconds, Span}
 
+import scala.concurrent.Await
+import scala.concurrent.duration.{Duration, DurationInt}
+
 class BoundsTest
     extends AnyFlatSpec
     with BeforeAndAfterAll
@@ -21,8 +24,8 @@ class BoundsTest
     PatienceConfig(timeout = Span(5, Seconds), interval = Span(500, Millis))
 
   override def beforeAll(): Unit = {
-    client.set(key, "1").point(1, 2).exec()
-    client.set(key, "1").point(2, 1).exec()
+    Await.result(client.set(key, "1").point(1, 2).exec(), Duration.Inf)
+    Await.result(client.set(key, "2").point(2, 1).exec(), Duration.Inf)
   }
 
   "BoundsTest" should "return a correct bounds response" in {

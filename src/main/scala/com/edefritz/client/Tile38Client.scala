@@ -1,6 +1,6 @@
 package com.edefritz.client
 
-import com.edefritz.commands.{Bounds, Get, Output, Set}
+import com.edefritz.commands.{Bounds, Drop, Get, Output, Set}
 import com.edefritz.model.{JsonType, OutputType, RespType}
 import io.lettuce.core.RedisClient
 import io.lettuce.core.api.StatefulRedisConnection
@@ -44,6 +44,14 @@ class Tile38Client(connectionString: String) {
   def bounds(key: String): Bounds = {
     forceJson()
     Bounds(key)(this)
+  }
+
+  /**
+    * Remove all objects from specified key.
+    */
+  def drop(key: String): Drop = {
+    forceJson()
+    Drop(key)(this)
   }
 
   def dispatch(
