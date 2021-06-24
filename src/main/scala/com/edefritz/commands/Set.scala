@@ -1,7 +1,13 @@
 package com.edefritz.commands
 
 import com.edefritz.client.Tile38Client
+import com.edefritz.errors.Tile38Error
+import com.edefritz.model.SuccessfulOperationResponse
+import io.circe.parser
 import io.lettuce.core.protocol.CommandType
+
+import scala.concurrent.ExecutionContext.Implicits.global
+import scala.concurrent.Future
 
 // TODO: This whole approach of mutable variables that are overwritten is somewhat bad
 case class Set(key: String, id: String)(implicit tile38Client: Tile38Client)
@@ -100,7 +106,15 @@ case class Set(key: String, id: String)(implicit tile38Client: Tile38Client)
     _args
   }
 
-  def exec(): String = {
-    super.exec(CommandType.SET, compileArgs())(tile38Client)
+  def exec(): Future[Either[Tile38Error, SuccessfulOperationResponse]] = {
+    val response = super.execAsync(CommandType.SET, compileArgs())(tile38Client)
+    response.map(r => {
+      parser.decode[SuccessfulOperationResponse](r) match {
+        case Left(_) =>
+          Left(super.decodeTile38Error(r))
+        case Right(objectResponse: SuccessfulOperationResponse) =>
+          Right(objectResponse)
+      }
+    })
   }
 }

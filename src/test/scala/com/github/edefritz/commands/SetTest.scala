@@ -3,9 +3,14 @@ package com.github.edefritz.commands
 import org.scalatest.flatspec.AnyFlatSpec
 import com.edefritz.commands.Set
 import com.edefritz.client.Tile38Client
+import com.edefritz.errors.Tile38Error
+import com.edefritz.model.SuccessfulOperationResponse
 import org.scalamock.scalatest.MockFactory
+import org.scalatest.concurrent.ScalaFutures
 
-class SetTest extends AnyFlatSpec with MockFactory {
+import scala.concurrent.Future
+
+class SetTest extends AnyFlatSpec with MockFactory with ScalaFutures {
   "Set" should "create a correct point query" in {
     // ARRANGE
     val client = mock[Tile38Client]
@@ -61,5 +66,22 @@ class SetTest extends AnyFlatSpec with MockFactory {
         "NX"
       )
     )
+  }
+
+  "SetTest" should "return a successful response when setting a point" in {
+    val client = new Tile38Client("redis://localhost:9851")
+    val key = "fleet"
+    // ACT
+    val point: Future[Either[Tile38Error, SuccessfulOperationResponse]] =
+      client.set(key, "1").point(1, 2).exec()
+
+    // ASSERT
+    whenReady(point) {
+      case Left(_) => fail()
+      case Right(value) =>
+        assert(
+          value.ok
+        )
+    }
   }
 }
