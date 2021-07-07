@@ -3,10 +3,10 @@ package com.edefritz.commands
 import com.edefritz.client.Tile38Client
 import com.edefritz.errors.Tile38Error
 import com.edefritz.model.{
-  BoundsResponse,
-  HashResponse,
-  ObjectResponse,
-  PointResponse,
+  CountResponse,
+  HashesResponse,
+  IdsResponse,
+  ObjectsResponse,
   PointsResponse,
   SeqBoundsResponse
 }
@@ -20,44 +20,84 @@ case class Scan(key: String)(implicit tile38Client: Tile38Client)
     extends Tile38Command {
 
   private var _args: Seq[Any] = Seq[Any](key)
-  private var _fields = false
-  val commandType = CommandType.SCAN
+  private var _where = Seq[Any]()
+  private var _nofields = false
+  private var _cursor = Seq("CURSOR", 0)
+  private var _limit = Seq("LIMIT", 100)
+  private val commandType = CommandType.SCAN
 
-  private def unpackFields(): Unit = {
-    if (_fields) _args = _args :+ "WITHFIELDS"
-  }
-
-  // compose new seq here instead of returning modified one here
-  def compileArgs() = {
-    unpackFields()
+  def compileArgs(): Seq[Any] = {
+    _args = _args ++ _cursor ++ _limit ++ _where
+    if (_nofields) _args = _args :+ "NOFIELDS"
     _args
   }
 
-  def withFields(): Scan = {
-    _fields = true
+  // TODO: How to pass infinity?
+  def where(field: String, min: Double, max: Double): Scan = {
+    _where = Seq("WHERE", field, min, max)
     this
   }
 
-  def asObjects(): Future[Either[Tile38Error, ObjectResponse]] = {
-    _args = compileArgs() :+ "OBJECTS"
+  // TODO: Fields are not parsed yet
+  def noFields(): Scan = {
+    _nofields = true
+    this
+  }
+
+  def cursor(cursor: Int): Scan = {
+    _cursor = Seq("CURSOR", cursor)
+    this
+  }
+
+  def limit(limit: Int): Scan = {
+    _limit = Seq("LIMIT", limit)
+    this
+  }
+
+  def asCount(): Future[Either[Tile38Error, CountResponse]] = {
+    _args = compileArgs() :+ "COUNT"
     val response = super.execAsync(commandType, _args)
     response.map(r => {
-      parser.decode[ObjectResponse](r) match {
+      parser.decode[CountResponse](r) match {
         case Left(_) =>
           Left(super.decodeTile38Error(r))
-        case Right(objectResponse: ObjectResponse) => Right(objectResponse)
+        case Right(countResponse: CountResponse) => Right(countResponse)
       }
     })
   }
 
-  def asHashes(precision: Int): Future[Either[Tile38Error, HashResponse]] = {
+  def asIds(): Future[Either[Tile38Error, IdsResponse]] = {
+    _args = compileArgs() :+ "IDS"
+    val response = super.execAsync(commandType, _args)
+    response.map(r => {
+      parser.decode[IdsResponse](r) match {
+        case Left(_) =>
+          Left(super.decodeTile38Error(r))
+        case Right(idsResponse: IdsResponse) => Right(idsResponse)
+      }
+    })
+  }
+
+  def asObjects(): Future[Either[Tile38Error, ObjectsResponse]] = {
+    _args = compileArgs() :+ "OBJECTS"
+    val response = super.execAsync(commandType, _args)
+    response.map(r => {
+      parser.decode[ObjectsResponse](r) match {
+        case Left(_) =>
+          Left(super.decodeTile38Error(r))
+        case Right(objectsResponse: ObjectsResponse) => Right(objectsResponse)
+      }
+    })
+  }
+
+  def asHashes(precision: Int): Future[Either[Tile38Error, HashesResponse]] = {
     _args = compileArgs() ++ Seq("HASHES", precision)
     val response = super.execAsync(commandType, _args)
     response.map(r => {
-      parser.decode[HashResponse](r) match {
+      parser.decode[HashesResponse](r) match {
         case Left(_) =>
           Left(super.decodeTile38Error(r))
-        case Right(hashResponse: HashResponse) => Right(hashResponse)
+        case Right(hashesResponse: HashesResponse) => Right(hashesResponse)
       }
     })
   }
@@ -76,7 +116,6 @@ case class Scan(key: String)(implicit tile38Client: Tile38Client)
     })
   }
 
-  // TODO: make other response types work as well
   def asPoints(): Future[Either[Tile38Error, PointsResponse]] = {
     _args = compileArgs() :+ "POINTS"
     val response = super.execAsync(commandType, _args)

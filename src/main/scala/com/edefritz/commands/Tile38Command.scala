@@ -39,7 +39,8 @@ trait Tile38Command {
               genericError.err,
               genericError.elapsed
             )
-          case _ => Tile38ResponseDecodingError("unexpected error message")
+          case error: String =>
+            Tile38ResponseDecodingError(s"unexpected error message: $error")
         }
       }
       case Left(error) => Tile38ResponseDecodingError(error.toString)

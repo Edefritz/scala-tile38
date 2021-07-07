@@ -53,6 +53,8 @@ class Tile38Client(connectionString: String) {
 
   /**
     * Remove all objects from specified key.
+    *
+    *
     */
   def drop(key: String): Drop = {
     forceJson()

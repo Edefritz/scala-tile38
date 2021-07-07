@@ -10,6 +10,24 @@ case class ObjectResponse(
     elapsed: String
 )
 
+case class ObjectsResponse(
+    ok: Boolean,
+    objects: Seq[IdObject],
+    count: Int,
+    cursor: Int,
+    elapsed: String
+)
+
+case class IdObject(id: String, `object`: GeoJson)
+
+object ObjectsResponse {
+  lazy implicit val decoder: Decoder[ObjectsResponse] = deriveDecoder
+}
+
+object IdObject {
+  lazy implicit val decoder: Decoder[IdObject] = deriveDecoder
+}
+
 object ObjectResponse {
   lazy implicit val decoder: Decoder[ObjectResponse] = deriveDecoder
 }

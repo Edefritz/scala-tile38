@@ -10,6 +10,21 @@ case class HashResponse(
     elapsed: String
 )
 
+case class HashesResponse(
+    ok: Boolean,
+    hashes: Seq[IdHash],
+    count: Int,
+    cursor: Int,
+    elapsed: String
+)
+case class IdHash(id: String, hash: String)
+
+object HashesResponse {
+  lazy implicit val decoder: Decoder[HashesResponse] = deriveDecoder
+}
+object IdHash {
+  lazy implicit val decoder: Decoder[IdHash] = deriveDecoder
+}
 object HashResponse {
   lazy implicit val decoder: Decoder[HashResponse] = deriveDecoder
 }
