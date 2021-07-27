@@ -1,9 +1,16 @@
-package com.edefritz.commands
+package io.github.edefritz.commands
 
-import com.edefritz.client.Tile38Client
-import com.edefritz.errors._
+import io.github.edefritz.errors._
 import io.circe.generic.codec.DerivedAsObjectCodec.deriveCodec
 import io.circe.parser
+import io.github.edefritz.client.Tile38Client
+import io.github.edefritz.errors.{
+  Tile38Error,
+  Tile38GenericError,
+  Tile38IdNotFoundError,
+  Tile38KeyNotFoundError,
+  Tile38ResponseDecodingError
+}
 import io.lettuce.core.codec.StringCodec
 import io.lettuce.core.protocol.{CommandArgs, ProtocolKeyword}
 

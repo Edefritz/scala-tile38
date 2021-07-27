@@ -19,6 +19,16 @@ val bounds = client.get("fleet", "1").asBounds()
 client.close()
 ```
 
-## Install
+## Installation
 
 TB
+
+## Development
+
+### Test
+
+```
+# Run both unit & integration tests
+docker-compose up
+sbt test
+```

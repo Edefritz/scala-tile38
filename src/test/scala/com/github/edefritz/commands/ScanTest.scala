@@ -1,7 +1,18 @@
 package com.github.edefritz.commands
 
-import com.edefritz.client.Tile38Client
-import com.edefritz.model._
+import io.github.edefritz.model._
+import io.github.edefritz.client.Tile38Client
+import io.github.edefritz.model.{
+  Bounds,
+  Coordinates,
+  GeoJsonPoint,
+  IdBounds,
+  IdHash,
+  IdObject,
+  IdPoint,
+  LatLon,
+  Point
+}
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures.whenReady
 import org.scalatest.flatspec.AnyFlatSpec

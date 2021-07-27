@@ -1,4 +1,4 @@
-package com.edefritz.model
+package io.github.edefritz.model
 
 sealed trait OutputType {
   def name: String

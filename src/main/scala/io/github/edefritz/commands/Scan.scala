@@ -1,8 +1,6 @@
-package com.edefritz.commands
+package io.github.edefritz.commands
 
-import com.edefritz.client.Tile38Client
-import com.edefritz.errors.Tile38Error
-import com.edefritz.model.{
+import io.github.edefritz.model.{
   CountResponse,
   HashesResponse,
   IdsResponse,
@@ -11,6 +9,16 @@ import com.edefritz.model.{
   SeqBoundsResponse
 }
 import io.circe.parser
+import io.github.edefritz.client.Tile38Client
+import io.github.edefritz.errors.Tile38Error
+import io.github.edefritz.model.{
+  CountResponse,
+  HashesResponse,
+  IdsResponse,
+  ObjectsResponse,
+  PointsResponse,
+  SeqBoundsResponse
+}
 import io.lettuce.core.protocol.CommandType
 
 import scala.concurrent.ExecutionContext.Implicits.global

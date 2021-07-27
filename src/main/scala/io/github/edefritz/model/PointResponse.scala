@@ -1,4 +1,5 @@
-package com.edefritz.model
+package io.github.edefritz.model
+
 import io.circe.Decoder
 import io.circe.generic.semiauto.deriveDecoder
 

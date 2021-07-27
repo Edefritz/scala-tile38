@@ -1,10 +1,10 @@
 package com.github.edefritz.commands
 
 import org.scalatest.flatspec.AnyFlatSpec
-import com.edefritz.commands.Set
-import com.edefritz.client.Tile38Client
-import com.edefritz.errors.Tile38Error
-import com.edefritz.model.SuccessfulOperationResponse
+import io.github.edefritz.client.Tile38Client
+import io.github.edefritz.commands.Set
+import io.github.edefritz.errors.Tile38Error
+import io.github.edefritz.model.SuccessfulOperationResponse
 import org.scalamock.scalatest.MockFactory
 import org.scalatest.concurrent.ScalaFutures
 

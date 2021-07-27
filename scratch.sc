@@ -1,4 +1,5 @@
-import com.edefritz.client.Tile38Client
+
+import io.github.edefritz.client.Tile38Client
 
 import scala.concurrent.Await
 import scala.concurrent.duration.DurationInt

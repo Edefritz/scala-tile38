@@ -1,10 +1,12 @@
-package com.edefritz.commands
+package io.github.edefritz.commands
 
-import com.edefritz.client.Tile38Client
-import com.edefritz.customCommandTypes.{BoundsCommandType, DropCommandType}
-import com.edefritz.errors.Tile38Error
-import com.edefritz.model.{KeyBoundsResponse, SuccessfulOperationResponse}
+import io.github.edefritz.customCommandTypes.BoundsCommandType
+import io.github.edefritz.model.KeyBoundsResponse
 import io.circe.parser
+import io.github.edefritz.client.Tile38Client
+import io.github.edefritz.customCommandTypes.DropCommandType
+import io.github.edefritz.errors.Tile38Error
+import io.github.edefritz.model.SuccessfulOperationResponse
 import io.lettuce.core.codec.StringCodec
 import io.lettuce.core.protocol.CommandType
 

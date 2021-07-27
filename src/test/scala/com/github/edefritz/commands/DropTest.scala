@@ -1,8 +1,8 @@
 package com.github.edefritz.commands
 
-import com.edefritz.client.Tile38Client
-import com.edefritz.errors.Tile38KeyNotFoundError
-import com.edefritz.model._
+import io.github.edefritz.model._
+import io.github.edefritz.client.Tile38Client
+import io.github.edefritz.errors.Tile38KeyNotFoundError
 import org.scalatest.BeforeAndAfterAll
 import org.scalatest.concurrent.ScalaFutures.whenReady
 import org.scalatest.concurrent.{Eventually, IntegrationPatience}

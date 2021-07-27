@@ -1,10 +1,12 @@
-package com.edefritz.commands
+package io.github.edefritz.commands
 
-import com.edefritz.client.Tile38Client
-import com.edefritz.customCommandTypes.{BoundsCommandType, OutputCommandType}
-import com.edefritz.errors.Tile38Error
-import com.edefritz.model.{KeyBoundsResponse, ObjectResponse, OutputType}
+import io.github.edefritz.customCommandTypes.BoundsCommandType
+import io.github.edefritz.model.ObjectResponse
 import io.circe.parser
+import io.github.edefritz.client.Tile38Client
+import io.github.edefritz.customCommandTypes.BoundsCommandType
+import io.github.edefritz.errors.Tile38Error
+import io.github.edefritz.model.KeyBoundsResponse
 import io.lettuce.core.codec.StringCodec
 
 import scala.concurrent.ExecutionContext.Implicits.global

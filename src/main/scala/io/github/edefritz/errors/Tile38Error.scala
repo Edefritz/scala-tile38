@@ -1,4 +1,4 @@
-package com.edefritz.errors
+package io.github.edefritz.errors
 
 import io.circe.Decoder
 import io.circe.generic.semiauto.deriveDecoder
