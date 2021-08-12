@@ -1,9 +1,8 @@
 package io.github.edefritz.client
 
-import io.github.edefritz.commands.Bounds
+import io.github.edefritz.commands.{Bounds, Drop, FSet, Get, Output, Scan}
 import io.github.edefritz.model.RespType
 import io.github.edefritz.commands
-import io.github.edefritz.commands.{Bounds, Drop, Get, Output, Scan}
 import io.github.edefritz.model.{JsonType, OutputType, RespType}
 import io.lettuce.core.RedisClient
 import io.lettuce.core.api.StatefulRedisConnection
@@ -62,6 +61,11 @@ class Tile38Client(connectionString: String) {
   def drop(key: String): Drop = {
     forceJson()
     Drop(key)(this)
+  }
+
+  def fset(key: String, id: String, fields: Map[String, Double]): FSet = {
+    forceJson()
+    FSet(key, id, fields)(this)
   }
 
   def dispatch(

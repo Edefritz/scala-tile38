@@ -19,6 +19,15 @@ val bounds = client.get("fleet", "1").asBounds()
 client.close()
 ```
 
+## Supported Commands
+
+- BOUNDS
+- DROP
+- GET
+- OUTPUT
+- SCAN
+- SET
+
 ## Installation
 
 TB

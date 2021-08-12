@@ -3,7 +3,7 @@ package io.github.edefritz.commands
 import io.circe.parser
 import io.github.edefritz.client.Tile38Client
 import io.github.edefritz.errors.Tile38Error
-import io.github.edefritz.model.SuccessfulOperationResponse
+import io.github.edefritz.model.{BaseResponse, SuccessfulOperationResponse}
 import io.lettuce.core.protocol.CommandType
 
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -109,7 +109,7 @@ case class Set(key: String, id: String)(implicit tile38Client: Tile38Client)
   def exec(): Future[Either[Tile38Error, SuccessfulOperationResponse]] = {
     val response = super.execAsync(CommandType.SET, compileArgs())(tile38Client)
     response.map(r => {
-      parser.decode[SuccessfulOperationResponse](r) match {
+      parser.decode[BaseResponse](r) match {
         case Left(_) =>
           Left(super.decodeTile38Error(r))
         case Right(objectResponse: SuccessfulOperationResponse) =>

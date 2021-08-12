@@ -29,6 +29,7 @@ trait Tile38Command {
     redisArgs
   }
 
+  // TODO: Include this in the trait decoder later
   def decodeTile38Error(response: String): Tile38Error = {
     parser.decode[Tile38GenericError](response) match {
       case Right(genericError: Tile38GenericError) => {

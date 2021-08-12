@@ -10,7 +10,6 @@ object Coordinates {
     Decoder[(Double, Double)].map(p => Coordinates(p._1, p._2))
 }
 
-// TODO: this is not a full geojson yet, it only reflects individual features
 sealed trait GeoJson
 // TODO: find out how to deal with different property types
 case class Feature(

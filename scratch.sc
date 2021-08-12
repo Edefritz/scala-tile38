@@ -2,14 +2,17 @@
 import io.github.edefritz.client.Tile38Client
 
 import scala.concurrent.Await
+import scala.concurrent.ExecutionContext.Implicits.global
 import scala.concurrent.duration.DurationInt
 import scala.language.postfixOps
+import scala.util.{Failure, Success}
 
 val connection = "redis://localhost:9851"
 
 val client = new Tile38Client(connection)
-Await.result(client.set("fleet", "1").point(1,2).exec(), 2.seconds)
-val a = Await.result(client.scan("fleet").asPoints(), 2.seconds)
+val set = client.set("fleet", "1").point(1,2).exec()
+//val a = Await.result(client.scan("fleet").asPoints(), 2.seconds)
+val b = Await.result(client.fset("fleet", "1", Map("c" -> 1.0)).exec(), 2.seconds)
 
 client.close()
 //
