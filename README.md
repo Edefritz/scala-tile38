@@ -55,3 +55,15 @@ client.close()
 docker-compose up
 sbt test
 ```
+
+### Further development
+
+This project started as a pet project to get a better understanding of Scala. While it works in theory there are some issues that need to be resolved so it becomes useful.
+
+- Figure out a proper return type for responses. Right now it's parsing the responses with circe and returns classes. Is this desirable or should we rather return Future[String] and let users parse the response? This might be easier, since sometimes it's hard to get the parsing right for stuff like geojson properties.
+- Right now the tile38 commands are built as classes. Depending on the arguments, the class is returned and modified multiple times. Maybe there is a way to compose commands in a more immutable way?
+- Examine if we're following Scala best practices (spoiler: we're not)
+- Coverage of possible commands is like 50%. There are a lot more tha could be added: https://tile38.com/commands
+- There is no support for LEADER / FOLLOWER setup
+- It would be nice if the pipeline could run the tests publish the artifacts automatically
+- For a good reference client library in python: https://github.com/iwpnd/pyle38
