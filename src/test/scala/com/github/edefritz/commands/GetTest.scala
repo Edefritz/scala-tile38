@@ -1,6 +1,5 @@
 package com.github.edefritz.commands
 
-import io.github.edefritz.model._
 import io.github.edefritz.client.Tile38Client
 import io.github.edefritz.model.{
   Bounds,

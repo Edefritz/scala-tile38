@@ -84,4 +84,21 @@ class SetTest extends AnyFlatSpec with MockFactory with ScalaFutures {
         )
     }
   }
+
+  it should "set a string value" in {
+    val client = new Tile38Client("redis://localhost:9851")
+    val key = "fleet"
+    // ACT
+    val string: Future[Either[Tile38Error, SuccessfulOperationResponse]] =
+      client.set(key, "1:name").string("John Denton").exec()
+
+    // ASSERT
+    whenReady(string) {
+      case Left(_) => fail()
+      case Right(value) =>
+        assert(
+          value.ok
+        )
+    }
+  }
 }

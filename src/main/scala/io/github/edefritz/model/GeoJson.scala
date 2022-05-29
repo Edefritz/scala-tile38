@@ -1,10 +1,11 @@
 package io.github.edefritz.model
 
-import io.circe.Decoder
+import io.circe.{Decoder, Json}
 import io.circe.generic.auto._
 import io.circe.generic.semiauto.deriveDecoder
 
 case class Coordinates(x: Double, y: Double)
+
 object Coordinates {
   implicit val decoder: Decoder[Coordinates] =
     Decoder[(Double, Double)].map(p => Coordinates(p._1, p._2))
@@ -15,6 +16,7 @@ sealed trait GeoJson
 case class Feature(
     geometry: GeoJson,
     properties: Option[Map[String, String]] = None
+    // This could be an option: properties: Option[io.circe.Json] = Some(Json.Null)
 ) extends GeoJson
 case class FeatureCollection(features: List[GeoJson]) extends GeoJson
 case class GeoJsonPoint(coordinates: Coordinates) extends GeoJson
