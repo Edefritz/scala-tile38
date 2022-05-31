@@ -33,29 +33,6 @@ class Tile38Client(connectionString: String) {
     }
   }
 
-  private def argsSeqToRedisArgs(seq: Seq[Any]): CommandArgs[String, String] = {
-    val codec = StringCodec.UTF8
-    val redisArgs = new CommandArgs(codec)
-
-    seq.foreach {
-      case s: String => redisArgs.add(s)
-      case d: Double => redisArgs.add(d)
-      case i: Int    => redisArgs.add(i)
-    }
-    redisArgs
-  }
-
-  def argsSeqToRedisArgs(seq: Seq[Any]): CommandArgs[String, String] = {
-    val codec = StringCodec.UTF8
-    val redisArgs = new CommandArgs(codec)
-
-    seq.foreach {
-      case s: String => redisArgs.add(s)
-      case d: Double => redisArgs.add(d)
-      case i: Int    => redisArgs.add(i)
-    }
-    redisArgs
-  }
   // TODO: Include this in the trait decoder later
   private def decodeTile38Error(response: String): Tile38Error = {
     parser.decode[Tile38GenericError](response) match {
@@ -83,8 +60,10 @@ class Tile38Client(connectionString: String) {
   }
 
   def execSync(command: Tile38Command): Try[Tile38Response] = {
-    Using(client.connect(Codec)) { client =>
-      client.sync().dispatch()
+    command.compileArguments().map{args =>
+        Using(client.connect(Codec)) { client =>
+          client.sync().dispatch(command.protocolKeyword, new ValueOutput(Codec), args)
+      }
     }
   }
 
