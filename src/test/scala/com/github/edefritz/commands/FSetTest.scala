@@ -1,22 +1,12 @@
 package com.github.edefritz.commands
 
-import io.github.edefritz.client.Tile38Client
-import io.github.edefritz.commands.{FSet, Set}
-import io.github.edefritz.errors.{Tile38Error, Tile38IdNotFoundError}
-import io.github.edefritz.model.{BaseResponse, SuccessfulOperationResponse}
 import org.scalamock.scalatest.MockFactory
-import org.scalatest.concurrent.{IntegrationPatience, ScalaFutures}
+import org.scalatest.concurrent.{ IntegrationPatience, ScalaFutures }
 import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.time.{Millis, Seconds, Span}
 
-import scala.concurrent.Future
+class FSetTest extends AnyFlatSpec with MockFactory with ScalaFutures with IntegrationPatience {
 
-class FSetTest
-    extends AnyFlatSpec
-    with MockFactory
-    with ScalaFutures
-    with IntegrationPatience {
-  implicit val defaultPatience =
+  /*implicit val defaultPatience =
     PatienceConfig(timeout = Span(5, Seconds), interval = Span(500, Millis))
 
   "FSet" should "create a correct fset query" in {
@@ -70,5 +60,5 @@ class FSetTest
       case Left(value)  => assert(value.isInstanceOf[Tile38IdNotFoundError])
       case Right(value) => fail()
     }
-  }
+  }*/
 }

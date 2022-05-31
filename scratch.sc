@@ -1,5 +1,6 @@
 
 import io.github.edefritz.client.Tile38Client
+import io.github.edefritz.commands.GetCommand
 
 import scala.concurrent.Await
 import scala.concurrent.ExecutionContext.Implicits.global
@@ -10,11 +11,14 @@ import scala.util.{Failure, Success}
 val connection = "redis://localhost:9851"
 
 val client = new Tile38Client(connection)
-val set = client.set("fleet", "1").point(1,2).exec()
+
+client.execSync(GetCommand("fleet", "truck1", point = true))
+
+/*val set = client.set("fleet", "1").point(1,2).exec()
 //val a = Await.result(client.scan("fleet").asPoints(), 2.seconds)
 val b = Await.result(client.fset("fleet", "1", Map("c" -> 1.0)).exec(), 2.seconds)
 
-client.close()
+client.close()*/
 //
 //val pointSet = client
 //  .set("fleet", "2")

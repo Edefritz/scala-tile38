@@ -1,22 +1,11 @@
 package com.github.edefritz.commands
 
-import io.github.edefritz.client.Tile38Client
-import io.github.edefritz.model.{
-  Bounds,
-  Coordinates,
-  Feature,
-  FeatureCollection,
-  GeoJsonPoint,
-  LatLon,
-  Point
-}
 import org.scalatest.BeforeAndAfterAll
-import org.scalatest.concurrent.ScalaFutures.whenReady
 import org.scalatest.flatspec.AnyFlatSpec
 
 class GetTest extends AnyFlatSpec with BeforeAndAfterAll {
 
-  val client = new Tile38Client("redis://localhost:9851")
+  /*val client = new Tile38Client("redis://localhost:9851")
 
   override def beforeAll(): Unit = {
     client.set("fleet", "1").point(1, 2).exec()
@@ -150,5 +139,7 @@ class GetTest extends AnyFlatSpec with BeforeAndAfterAll {
   // TODO: Make sure geojson properties are parsed too
   // The issue is that properties can be Map[String, Any] but circe cannot decode Any
   // https://github.com/circe/circe/issues/216
+
+   */
 
 }

@@ -1,24 +1,12 @@
 package com.github.edefritz.commands
 
-import io.github.edefritz.model._
-import io.github.edefritz.client.Tile38Client
-import io.github.edefritz.model.{Coordinates, Polygon}
 import org.scalatest.BeforeAndAfterAll
-import org.scalatest.concurrent.{Eventually, IntegrationPatience}
-import org.scalatest.concurrent.ScalaFutures.whenReady
+import org.scalatest.concurrent.{ Eventually, IntegrationPatience }
 import org.scalatest.flatspec.AnyFlatSpec
-import org.scalatest.time.{Millis, Seconds, Span}
 
-import scala.concurrent.Await
-import scala.concurrent.duration.{Duration, DurationInt}
+class BoundsTest extends AnyFlatSpec with BeforeAndAfterAll with Eventually with IntegrationPatience {
 
-class BoundsTest
-    extends AnyFlatSpec
-    with BeforeAndAfterAll
-    with Eventually
-    with IntegrationPatience {
-
-  val client = new Tile38Client("redis://localhost:9851")
+  /*val client = new Tile38Client("redis://localhost:9851")
   val key = "fleet_bounds"
 
   implicit val defaultPatience =
@@ -54,6 +42,6 @@ class BoundsTest
           value.bounds == expectedOutput
         )
     }
-  }
+  }*/
 
 }

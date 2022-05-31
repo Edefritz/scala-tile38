@@ -2,36 +2,43 @@ package io.github.edefritz.client
 
 import io.circe.parser
 import io.github.edefritz.client.Tile38Client.Codec
-import io.github.edefritz.commands
 import io.github.edefritz.commands._
-import io.github.edefritz.errors.{Tile38Error, Tile38GenericError, Tile38IdNotFoundError, Tile38KeyNotFoundError, Tile38ResponseDecodingError}
-import io.github.edefritz.model.{JsonType, OutputType, RespType, Tile38Response}
+import io.github.edefritz.errors._
+import io.github.edefritz.responses.Tile38Response
+import io.github.edefritz.responses.Tile38Response.decoder
 import io.lettuce.core.RedisClient
-import io.lettuce.core.api.StatefulRedisConnection
-import io.lettuce.core.api.async.RedisAsyncCommands
-import io.lettuce.core.api.sync.RedisCommands
 import io.lettuce.core.codec.StringCodec
 import io.lettuce.core.output.ValueOutput
-import io.lettuce.core.protocol.{CommandArgs, ProtocolKeyword}
+import io.lettuce.core.protocol.CommandArgs
 
-import scala.concurrent.Future
-import scala.jdk.FutureConverters.CompletionStageOps
-import scala.util.{Try, Using}
+import scala.util.{ Try, Using }
 
 class Tile38Client(connectionString: String) {
   private lazy val client: RedisClient = RedisClient.create(connectionString)
 
-
-  // By default a lettuce connection would return RESP
-  private var format: OutputType = RespType
-
-  // This is needed to configure the connection to request JSON from Tile38
-  private def forceJson() = {
-    if (this.format != JsonType) {
-      format = JsonType
-      Output(JsonType)(this).exec()
-    }
+  def execSync(command: Tile38Command): Try[Tile38Response] = {
+    def doQuery(args: CommandArgs[String, String]): Try[String] =
+      Using(client.connect(Codec)) { client =>
+        client
+          .sync()
+          .dispatch(OutputCommandType, new ValueOutput(Codec), new CommandArgs[String, String](Codec).add("json"))
+        client.sync().dispatch(command.protocolKeyword, new ValueOutput(Codec), args)
+      }
+    for {
+      args            <- command.compileArguments()
+      response        <- doQuery(args)
+      decodedResponse <- parser.decode(response).toTry
+    } yield decodedResponse
   }
+
+  /*  def execAsync(command: Tile38Command): Future[Tile38Response] = {}
+
+  def exec(
+      commandType: ProtocolKeyword,
+      args: CommandArgs[String, String]
+  ): Future[String] = {
+    async.dispatch(commandType, new ValueOutput(Codec), args).asScala
+  }*/
 
   // TODO: Include this in the trait decoder later
   private def decodeTile38Error(response: String): Tile38Error = {
@@ -59,25 +66,16 @@ class Tile38Client(connectionString: String) {
     }
   }
 
-  def execSync(command: Tile38Command): Try[Tile38Response] = {
-    command.compileArguments().map{args =>
-        Using(client.connect(Codec)) { client =>
-          client.sync().dispatch(command.protocolKeyword, new ValueOutput(Codec), args)
-      }
+  // By default a lettuce connection would return RESP
+  //private var format: OutputType = RespType
+
+  // This is needed to configure the connection to request JSON from Tile38
+  /*private def forceJson() = {
+    if (this.format != JsonType) {
+      format = JsonType
+      Output(JsonType)(this).exec()
     }
-  }
-
-
-  def execAsync(command: Tile38Command): Future[Tile38Response] = {
-
-  }
-
-  def exec(
-      commandType: ProtocolKeyword,
-      args: CommandArgs[String, String]
-  ): Future[String] = {
-    async.dispatch(commandType, new ValueOutput(Codec), args).asScala
-  }
+  }*/
 
 }
 
