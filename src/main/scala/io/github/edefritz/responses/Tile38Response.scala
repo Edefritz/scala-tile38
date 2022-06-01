@@ -1,8 +1,7 @@
 package io.github.edefritz.responses
 
-import io.circe.Decoder.Result
 import io.circe.generic.semiauto._
-import io.circe.{ Codec, Decoder, DecodingFailure, HCursor }
+import io.circe.{ Codec, Decoder, DecodingFailure, HCursor, Json }
 
 sealed trait Tile38Response {
   val ok: Boolean
@@ -18,12 +17,13 @@ object Tile38Response {
 
   final implicit val decoder: Decoder[Tile38Response] =
     (cursor: HCursor) => {
-      if (cursor.downField("point").succeeded) cursor.as[PointResponse]
-      else Left(DecodingFailure(s"Cannot determine response type for $cursor", List.empty))
       // TODO: Do this nicer
-      //val maybeObject = cursor.downField("object").focus
-      //val maybeBounds = cursor.downField("bounds").focus
-      //val maybeHash = cursor.downField("hash").focus
+      if (cursor.downField("point").succeeded) cursor.as[PointResponse]
+      else if (cursor.downField("hash").succeeded) cursor.as[HashResponse]
+      else if (cursor.downField("bounds").succeeded) cursor.as[BoundsResponse]
+      else if (cursor.downField("object").succeeded) cursor.as[ObjectResponse]
+      else if (cursor.downField("err").succeeded) cursor.as[Tile38ReponseError]
+      else Left(DecodingFailure(s"Cannot determine response type for $cursor", List.empty))
     }
 
 }
@@ -40,4 +40,47 @@ final case class PointResponse(
 ) extends Tile38Response
 object PointResponse {
   implicit val decoder: Decoder[PointResponse] = deriveDecoder
+}
+
+final case class HashResponse(
+    override val ok: Boolean,
+    override val elapsed: String,
+    hash: String
+) extends Tile38Response
+object HashResponse {
+  implicit val decoder: Decoder[HashResponse] = deriveDecoder
+}
+
+final case class BoundsResponse(
+    override val ok: Boolean,
+    override val elapsed: String,
+    bounds: Bounds
+) extends Tile38Response
+object BoundsResponse {
+  implicit val decoder: Decoder[BoundsResponse] = deriveDecoder
+}
+
+case class Bounds(sw: LatLon, ne: LatLon)
+case class LatLon(lat: Double, lon: Double)
+object Bounds {
+  lazy implicit val decoder: Decoder[Bounds] = deriveDecoder
+}
+object LatLon {
+  lazy implicit val decoder: Decoder[LatLon] = deriveDecoder
+}
+
+case class ObjectResponse(
+    override val ok: Boolean,
+    override val elapsed: String,
+    `object`: Json
+) extends Tile38Response
+object ObjectResponse {
+  lazy implicit val decoder: Decoder[ObjectResponse] = deriveDecoder
+}
+
+final case class Tile38ReponseError(override val ok: Boolean, override val elapsed: String, err: String)
+    extends Tile38Response
+
+object Tile38ReponseError {
+  lazy implicit val decoder: Decoder[Tile38ReponseError] = deriveDecoder
 }

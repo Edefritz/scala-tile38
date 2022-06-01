@@ -11,7 +11,7 @@ object Application extends IOApp {
   override def run(args: List[String]): IO[ExitCode] =
     for {
       result <-
-        Tile38Client.forAsync[IO](connection).exec(GetCommand("fleet", "truck1", outputFormat = GetCommand.Point))
+        Tile38Client.forAsync[IO](connection).exec(GetCommand("fleet", "truck2123123", outputFormat = GetCommand.Object))
       _ <- IO.delay(print(result))
     } yield ExitCode.Success
 

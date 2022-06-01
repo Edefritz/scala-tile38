@@ -3,9 +3,10 @@ package io.github.edefritz.commands
 import io.github.edefritz.commands.GetCommand._
 import io.github.edefritz.commands.OutputCommand.OutputCommandArgument
 import io.lettuce.core.codec.StringCodec
-import io.lettuce.core.protocol.{ CommandArgs, CommandType, ProtocolKeyword }
+import io.lettuce.core.protocol.{CommandArgs, CommandType, ProtocolKeyword}
 
-import scala.util.{ Success, Try }
+import scala.jdk.CollectionConverters._
+import scala.util.{Success, Try}
 
 sealed trait Tile38Command {
   val protocolKeyword: ProtocolKeyword
@@ -24,7 +25,10 @@ final case class GetCommand(
     args.add(key)
     args.add(id)
     if (withFields) args.add(WithFields.keyword)
-    args.add(outputFormat.keyword)
+    outputFormat match {
+      case Hash(precision) => args.add(outputFormat.keyword).add(precision)
+      case other => args.add(other.keyword)
+    }
     Success(args)
   }
 }
