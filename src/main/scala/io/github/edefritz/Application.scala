@@ -1,16 +1,18 @@
 package io.github.edefritz
 
+import cats.effect._
 import io.github.edefritz.client.Tile38Client
 import io.github.edefritz.commands.GetCommand
 
-object Application extends App {
+object Application extends IOApp {
 
   val connection = "redis://localhost:9851"
 
-  val client = new Tile38Client(connection)
-
-  val maybeResult = client.execSync(GetCommand("fleet", "truck1", point = true))
-
-  println(maybeResult)
+  override def run(args: List[String]): IO[ExitCode] =
+    for {
+      result <-
+        Tile38Client.forAsync[IO](connection).exec(GetCommand("fleet", "truck1", outputFormat = GetCommand.Point))
+      _ <- IO.delay(print(result))
+    } yield ExitCode.Success
 
 }

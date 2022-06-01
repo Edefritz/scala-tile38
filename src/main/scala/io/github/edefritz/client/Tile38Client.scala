@@ -1,84 +1,55 @@
 package io.github.edefritz.client
 
+import cats.effect.kernel.{ Async, Resource, Sync }
+import cats.syntax.all._
 import io.circe.parser
-import io.github.edefritz.client.Tile38Client.Codec
 import io.github.edefritz.commands._
-import io.github.edefritz.errors._
 import io.github.edefritz.responses.Tile38Response
 import io.github.edefritz.responses.Tile38Response.decoder
 import io.lettuce.core.RedisClient
+import io.lettuce.core.api.StatefulRedisConnection
 import io.lettuce.core.codec.StringCodec
 import io.lettuce.core.output.ValueOutput
-import io.lettuce.core.protocol.CommandArgs
+import io.lettuce.core.protocol.{ CommandArgs, ProtocolKeyword }
 
-import scala.util.{ Try, Using }
-
-class Tile38Client(connectionString: String) {
-  private lazy val client: RedisClient = RedisClient.create(connectionString)
-
-  def execSync(command: Tile38Command): Try[Tile38Response] = {
-    def doQuery(args: CommandArgs[String, String]): Try[String] =
-      Using(client.connect(Codec)) { client =>
-        client
-          .sync()
-          .dispatch(OutputCommandType, new ValueOutput(Codec), new CommandArgs[String, String](Codec).add("json"))
-        client.sync().dispatch(command.protocolKeyword, new ValueOutput(Codec), args)
-      }
-    for {
-      args            <- command.compileArguments()
-      response        <- doQuery(args)
-      decodedResponse <- parser.decode(response).toTry
-    } yield decodedResponse
-  }
-
-  /*  def execAsync(command: Tile38Command): Future[Tile38Response] = {}
-
-  def exec(
-      commandType: ProtocolKeyword,
-      args: CommandArgs[String, String]
-  ): Future[String] = {
-    async.dispatch(commandType, new ValueOutput(Codec), args).asScala
-  }*/
-
-  // TODO: Include this in the trait decoder later
-  private def decodeTile38Error(response: String): Tile38Error = {
-    parser.decode[Tile38GenericError](response) match {
-      case Right(genericError: Tile38GenericError) => {
-
-        genericError.err match {
-          case "key not found" =>
-            Tile38KeyNotFoundError(
-              genericError.ok,
-              genericError.err,
-              genericError.elapsed
-            )
-          case "id not found" =>
-            Tile38IdNotFoundError(
-              genericError.ok,
-              genericError.err,
-              genericError.elapsed
-            )
-          case error: String =>
-            Tile38ResponseDecodingError(s"unexpected error message: $error")
-        }
-      }
-      case Left(error) => Tile38ResponseDecodingError(error.toString)
-    }
-  }
-
-  // By default a lettuce connection would return RESP
-  //private var format: OutputType = RespType
-
-  // This is needed to configure the connection to request JSON from Tile38
-  /*private def forceJson() = {
-    if (this.format != JsonType) {
-      format = JsonType
-      Output(JsonType)(this).exec()
-    }
-  }*/
-
+trait Tile38Client[F[_]] {
+  def exec(command: Tile38Command): F[Tile38Response]
 }
 
 object Tile38Client {
-  final val Codec: StringCodec = StringCodec.UTF8;
+
+  // TODO: Can we handle serialization with codec?
+  private final val Codec: StringCodec = StringCodec.UTF8
+  private final val OutputJsonCommand  = OutputCommand(OutputCommand.Json)
+
+  def forAsync[F[_]: Async](connectionString: String): Tile38Client[F] =
+    new Tile38Client[F] {
+      private lazy val client: RedisClient = RedisClient.create(connectionString)
+      private lazy val connectionResource: Resource[F, StatefulRedisConnection[String, String]] =
+        Resource.make(Async[F].blocking(client.connect(Codec)))(client => Async[F].blocking(client.close()))
+
+      override def exec(command: Tile38Command): F[Tile38Response] = {
+        def dispatchCommand(
+            protocolKeyword: ProtocolKeyword,
+            commandArgs: CommandArgs[String, String],
+            valueOutput: ValueOutput[String, String] = new ValueOutput(Codec)
+        )(client: StatefulRedisConnection[String, String]): F[String] = {
+          val eventualCommandExecution = Async[F].delay {
+            client.async().dispatch(protocolKeyword, valueOutput, commandArgs).toCompletableFuture
+          }
+          Async[F].fromCompletableFuture(eventualCommandExecution)
+        }
+
+        connectionResource.use { client =>
+          for {
+            outputArgs      <- Async[F].fromTry(OutputJsonCommand.compileArguments())
+            _               <- dispatchCommand(OutputJsonCommand.protocolKeyword, outputArgs)(client)
+            args            <- Async[F].fromTry(command.compileArguments())
+            response        <- dispatchCommand(command.protocolKeyword, args)(client)
+            decodedResponse <- Async[F].fromEither(parser.decode(response))
+          } yield decodedResponse
+        }
+      }
+    }
+
 }

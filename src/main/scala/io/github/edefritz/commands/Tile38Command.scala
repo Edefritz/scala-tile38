@@ -1,35 +1,31 @@
 package io.github.edefritz.commands
 
-import io.lettuce.core.protocol.{CommandArgs, CommandType, ProtocolKeyword}
-import GetCommand._
+import io.github.edefritz.commands.GetCommand._
+import io.github.edefritz.commands.OutputCommand.OutputCommandArgument
 import io.lettuce.core.codec.StringCodec
+import io.lettuce.core.protocol.{ CommandArgs, CommandType, ProtocolKeyword }
 
-import scala.util.{Failure, Success, Try}
+import scala.util.{ Success, Try }
 
 sealed trait Tile38Command {
   val protocolKeyword: ProtocolKeyword
   def compileArguments(): Try[CommandArgs[String, String]]
 }
 
-final case class GetCommand(key: String, id: String,
-                            withFields: Boolean = false,
-                            `object`: Boolean = false,
-                            point: Boolean = false,
-                            bounds: Boolean = false,
-                            hash: Option[Int] = None) extends Tile38Command {
+final case class GetCommand(
+    key: String,
+    id: String,
+    withFields: Boolean = false,
+    outputFormat: GetCommandArgument with GetCommandOutputFormat
+) extends Tile38Command {
   override val protocolKeyword: ProtocolKeyword = CommandType.GET
   override def compileArguments(): Try[CommandArgs[String, String]] = {
-    val redisArgs = new CommandArgs(StringCodec.UTF8)
-    redisArgs.add(key).add(id)
-    if(withFields) redisArgs.add(WithFields.keyword)
-    val triedCommandArgument: Try[GetCommandArgument] = (`object`, point, bounds, hash) match {
-      case (true, false, false, None) => Success(Object)
-      case (false, true, false, None) => Success(Point)
-      case (false, false, true, None) => Success(Bounds)
-      case (false, false, false, Some(precision)) => Success(Hash(precision))
-      case _ => Failure(new IllegalArgumentException("Illegal combination of arguments: can only define one of object, point, bounds and hash"))
-    }
-    triedCommandArgument.map(arg => redisArgs.add(arg.keyword))
+    val args = new CommandArgs(StringCodec.UTF8)
+    args.add(key)
+    args.add(id)
+    if (withFields) args.add(WithFields.keyword)
+    args.add(outputFormat.keyword)
+    Success(args)
   }
 }
 
@@ -38,23 +34,45 @@ object GetCommand {
     val keyword: String
   }
 
+  sealed trait GetCommandOutputFormat
+
   final object WithFields extends GetCommandArgument {
     override val keyword: String = "WITHFIELDS"
   }
 
-  final object Object extends GetCommandArgument {
+  final object Object extends GetCommandArgument with GetCommandOutputFormat {
     override val keyword: String = "OBJECT"
   }
 
-  final object Point extends GetCommandArgument {
+  final object Point extends GetCommandArgument with GetCommandOutputFormat {
     override val keyword: String = "POINT"
   }
 
-  final object Bounds extends GetCommandArgument {
+  final object Bounds extends GetCommandArgument with GetCommandOutputFormat {
     override val keyword: String = "BOUNDS"
   }
 
-  final case class Hash(precision: Int) extends GetCommandArgument {
+  final case class Hash(precision: Int) extends GetCommandArgument with GetCommandOutputFormat {
     override val keyword: String = "HASH"
+  }
+}
+
+final case class OutputCommand(format: OutputCommandArgument) extends Tile38Command {
+  override val protocolKeyword: ProtocolKeyword = OutputCommandType
+
+  override def compileArguments(): Try[CommandArgs[String, String]] =
+    Success(new CommandArgs[String, String](StringCodec.UTF8).add(format.value))
+}
+
+object OutputCommand {
+  sealed trait OutputCommandArgument {
+    val value: String
+  }
+  final object Json extends OutputCommandArgument {
+    override val value: String = "json"
+  }
+  // We don't support parsing Resp responses
+  final object Resp extends OutputCommandArgument {
+    override val value: String = "resp"
   }
 }
