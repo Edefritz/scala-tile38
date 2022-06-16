@@ -28,5 +28,7 @@ object Dependencies {
     "org.scalatest" %% "scalatest" % "3.1.0" % Test
   )
 
-  val projectDeps = circe ++ cats ++ catsEffect ++ Seq(lettuce, scalaTest % Test) ++ scalaMock
+  val weaver = Seq("com.disneystreaming" %% "weaver-cats" % "0.7.12" % Test)
+
+  val projectDeps = circe ++ cats ++ catsEffect ++ Seq(lettuce, scalaTest % Test) ++ scalaMock ++ weaver
 }
