@@ -1,7 +1,6 @@
 import sbt._
 
 object Dependencies {
-  lazy val scalaTest = "org.scalatest" %% "scalatest"    % "3.2.2"
   val lettuce        = "io.lettuce"     % "lettuce-core" % "5.0.2.RELEASE"
 
   val circeVersion = "0.14.1"
@@ -13,7 +12,7 @@ object Dependencies {
     "io.circe" %% "circe-shapes"
   ).map(_ % circeVersion)
 
-  val catsVersion = "2.3.0"
+  val catsVersion = "2.7.0"
   val cats = Seq(
     "org.typelevel" %% "cats-core" % catsVersion
   )
@@ -23,12 +22,7 @@ object Dependencies {
     "org.typelevel" %% "cats-effect" % catsEffectVersion
   )
 
-  val scalaMock = Seq(
-    "org.scalamock" %% "scalamock" % "5.1.0" % Test,
-    "org.scalatest" %% "scalatest" % "3.1.0" % Test
-  )
-
   val weaver = Seq("com.disneystreaming" %% "weaver-cats" % "0.7.12" % Test)
 
-  val projectDeps = circe ++ cats ++ catsEffect ++ Seq(lettuce, scalaTest % Test) ++ scalaMock ++ weaver
+  val projectDeps = circe ++ cats ++ catsEffect ++ Seq(lettuce) ++ weaver
 }
