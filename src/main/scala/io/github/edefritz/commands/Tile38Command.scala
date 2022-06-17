@@ -2,6 +2,7 @@ package io.github.edefritz.commands
 
 import io.github.edefritz.commands.GetCommand._
 import io.github.edefritz.commands.OutputCommand.OutputCommandArgument
+import io.github.edefritz.commands.SetCommand.{Point, SetCommandArgument, SetCommandInputFormat}
 import io.lettuce.core.codec.StringCodec
 import io.lettuce.core.protocol.{CommandArgs, CommandType, ProtocolKeyword}
 
@@ -11,6 +12,38 @@ import scala.util.{Success, Try}
 sealed trait Tile38Command {
   val protocolKeyword: ProtocolKeyword
   def compileArguments(): Try[CommandArgs[String, String]]
+}
+
+final case class SetCommand(
+                             key: String,
+                             id: String,
+                             inputFormat: SetCommandArgument with SetCommandInputFormat
+                           ) extends Tile38Command {
+  override val protocolKeyword: ProtocolKeyword = CommandType.SET
+
+  override def compileArguments(): Try[CommandArgs[String, String]] = {
+    val args = new CommandArgs(StringCodec.UTF8)
+    args.add(key)
+    args.add(id)
+    inputFormat match {
+      case Point(lat, lon) => args.add(inputFormat.keyword).add(lat).add(lon)
+      // TODO: add other input command argument types
+      case other => args.add(other.keyword)
+    }
+    Success(args)
+  }
+}
+
+object SetCommand {
+  sealed trait SetCommandArgument {
+    val keyword: String
+  }
+
+  sealed trait SetCommandInputFormat
+
+  final case class Point(lat: Double, lon: Double) extends SetCommandArgument with SetCommandInputFormat {
+    override val keyword: String = "POINT"
+  }
 }
 
 final case class GetCommand(

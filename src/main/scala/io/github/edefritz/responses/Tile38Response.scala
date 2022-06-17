@@ -23,6 +23,7 @@ object Tile38Response {
       else if (cursor.downField("bounds").succeeded) cursor.as[BoundsResponse]
       else if (cursor.downField("object").succeeded) cursor.as[ObjectResponse]
       else if (cursor.downField("err").succeeded) cursor.as[Tile38ReponseError]
+      else if (cursor.downField("ok").succeeded) cursor.as[Tile38SuccessfulResponse]
       else Left(DecodingFailure(s"Cannot determine response type for $cursor", List.empty))
     }
 
@@ -83,4 +84,10 @@ final case class Tile38ReponseError(override val ok: Boolean, override val elaps
 
 object Tile38ReponseError {
   lazy implicit val decoder: Decoder[Tile38ReponseError] = deriveDecoder
+}
+
+final case class Tile38SuccessfulResponse(override val ok: Boolean, override val elapsed: String) extends Tile38Response
+
+object Tile38SuccessfulResponse {
+  lazy implicit val decoder: Decoder[Tile38SuccessfulResponse] = deriveDecoder
 }
