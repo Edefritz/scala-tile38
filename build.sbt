@@ -50,3 +50,5 @@ lazy val root = (project in file("."))
     name := "scala-tile38",
     libraryDependencies ++= projectDeps
   )
+
+testFrameworks += new TestFramework("weaver.framework.CatsEffect")

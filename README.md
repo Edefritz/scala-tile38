@@ -37,12 +37,13 @@ libraryDependencies += "io.github.edefritz" % "scala-tile38" % "0.1"
 ```
 
 Use in your app
+
 ```scala
-import io.github.edefritz.client.Tile38Client
+import io.github.edefritz.client.Tile38ClientImpl
 
-val client = new Tile38Client("redis://localhost:9851")
+val client = new Tile38ClientImpl("redis://localhost:9851")
 
-val set = Await.result(client.set("my_key", "1").point(1,2).exec(), Duration.Inf)
+val set = Await.result(client.set("my_key", "1").point(1, 2).exec(), Duration.Inf)
 val get = Await.result(client.get("my_key", "1").asObject(), Duration.Inf)
 
 client.close()

@@ -1,71 +1,82 @@
 package io.github.edefritz.commands
 
-import io.github.edefritz.errors._
-import io.circe.generic.codec.DerivedAsObjectCodec.deriveCodec
-import io.circe.parser
-import io.github.edefritz.client.Tile38Client
-import io.github.edefritz.errors.{
-  Tile38Error,
-  Tile38GenericError,
-  Tile38IdNotFoundError,
-  Tile38KeyNotFoundError,
-  Tile38ResponseDecodingError
-}
+import io.github.edefritz.commands.GetCommand._
+import io.github.edefritz.commands.OutputCommand.OutputCommandArgument
 import io.lettuce.core.codec.StringCodec
-import io.lettuce.core.protocol.{CommandArgs, ProtocolKeyword}
+import io.lettuce.core.protocol.{CommandArgs, CommandType, ProtocolKeyword}
 
-import scala.concurrent.Future
+import scala.jdk.CollectionConverters._
+import scala.util.{Success, Try}
 
-trait Tile38Command {
-  def argsSeqToRedisArgs(seq: Seq[Any]): CommandArgs[String, String] = {
-    val codec = StringCodec.UTF8
-    val redisArgs = new CommandArgs(codec)
+sealed trait Tile38Command {
+  val protocolKeyword: ProtocolKeyword
+  def compileArguments(): Try[CommandArgs[String, String]]
+}
 
-    seq.foreach {
-      case s: String => redisArgs.add(s)
-      case d: Double => redisArgs.add(d)
-      case i: Int    => redisArgs.add(i)
+final case class GetCommand(
+    key: String,
+    id: String,
+    withFields: Boolean = false,
+    outputFormat: GetCommandArgument with GetCommandOutputFormat
+) extends Tile38Command {
+  override val protocolKeyword: ProtocolKeyword = CommandType.GET
+  override def compileArguments(): Try[CommandArgs[String, String]] = {
+    val args = new CommandArgs(StringCodec.UTF8)
+    args.add(key)
+    args.add(id)
+    if (withFields) args.add(WithFields.keyword)
+    outputFormat match {
+      case Hash(precision) => args.add(outputFormat.keyword).add(precision)
+      case other => args.add(other.keyword)
     }
-    redisArgs
+    Success(args)
+  }
+}
+
+object GetCommand {
+  sealed trait GetCommandArgument {
+    val keyword: String
   }
 
-  // TODO: Include this in the trait decoder later
-  def decodeTile38Error(response: String): Tile38Error = {
-    parser.decode[Tile38GenericError](response) match {
-      case Right(genericError: Tile38GenericError) => {
+  sealed trait GetCommandOutputFormat
 
-        genericError.err match {
-          case "key not found" =>
-            Tile38KeyNotFoundError(
-              genericError.ok,
-              genericError.err,
-              genericError.elapsed
-            )
-          case "id not found" =>
-            Tile38IdNotFoundError(
-              genericError.ok,
-              genericError.err,
-              genericError.elapsed
-            )
-          case error: String =>
-            Tile38ResponseDecodingError(s"unexpected error message: $error")
-        }
-      }
-      case Left(error) => Tile38ResponseDecodingError(error.toString)
-    }
+  final object WithFields extends GetCommandArgument {
+    override val keyword: String = "WITHFIELDS"
   }
 
-  def exec(commandType: ProtocolKeyword, args: Seq[Any])(implicit
-      tile38Client: Tile38Client
-  ): String = {
-    val redisArgs = argsSeqToRedisArgs(args)
-    tile38Client.dispatch(commandType, redisArgs)
+  final object Object extends GetCommandArgument with GetCommandOutputFormat {
+    override val keyword: String = "OBJECT"
   }
 
-  def execAsync(commandType: ProtocolKeyword, args: Seq[Any])(implicit
-      tile38Client: Tile38Client
-  ): Future[String] = {
-    val redisArgs = argsSeqToRedisArgs(args)
-    tile38Client.dispatchAsync(commandType, redisArgs)
+  final object Point extends GetCommandArgument with GetCommandOutputFormat {
+    override val keyword: String = "POINT"
+  }
+
+  final object Bounds extends GetCommandArgument with GetCommandOutputFormat {
+    override val keyword: String = "BOUNDS"
+  }
+
+  final case class Hash(precision: Int) extends GetCommandArgument with GetCommandOutputFormat {
+    override val keyword: String = "HASH"
+  }
+}
+
+final case class OutputCommand(format: OutputCommandArgument) extends Tile38Command {
+  override val protocolKeyword: ProtocolKeyword = OutputCommandType
+
+  override def compileArguments(): Try[CommandArgs[String, String]] =
+    Success(new CommandArgs[String, String](StringCodec.UTF8).add(format.value))
+}
+
+object OutputCommand {
+  sealed trait OutputCommandArgument {
+    val value: String
+  }
+  final object Json extends OutputCommandArgument {
+    override val value: String = "json"
+  }
+  // We don't support parsing Resp responses
+  final object Resp extends OutputCommandArgument {
+    override val value: String = "resp"
   }
 }
