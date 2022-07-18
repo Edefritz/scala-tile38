@@ -29,7 +29,7 @@ object Tile38Response {
 
 }
 
-final case class Point(lat: Double, lon: Double)
+final case class Point(lat: Double, lon: Double, z: Option[Double] = None)
 object Point {
   implicit val codec: Codec[Point] = deriveCodec
 }
@@ -37,7 +37,9 @@ object Point {
 final case class PointResponse(
     override val ok: Boolean,
     override val elapsed: String,
-    point: Point
+    point: Point,
+    // TODO: Why does this need an override to be decoded correctly?
+    override val fields: Option[Map[String, Double]]
 ) extends Tile38Response
 object PointResponse {
   implicit val decoder: Decoder[PointResponse] = deriveDecoder
