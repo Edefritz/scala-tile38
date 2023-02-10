@@ -22,6 +22,7 @@ object Tile38Response {
       else if (cursor.downField("hash").succeeded) cursor.as[HashResponse]
       else if (cursor.downField("bounds").succeeded) cursor.as[BoundsResponse]
       else if (cursor.downField("object").succeeded) cursor.as[ObjectResponse]
+      else if (cursor.downField("ttl").succeeded) cursor.as[TimeToLiveResponse]
       else if (cursor.downField("err").succeeded) cursor.as[Tile38ReponseError]
       else if (cursor.downField("ok").succeeded) cursor.as[Tile38SuccessfulResponse]
       else Left(DecodingFailure(s"Cannot determine response type for $cursor", List.empty))
@@ -32,6 +33,15 @@ object Tile38Response {
 final case class Point(lat: Double, lon: Double, z: Option[Double] = None)
 object Point {
   implicit val codec: Codec[Point] = deriveCodec
+}
+
+final case class TimeToLiveResponse(
+    override val ok: Boolean,
+    override val elapsed: String,
+    ttl: Int
+) extends Tile38Response
+object TimeToLiveResponse {
+  implicit val decoder: Decoder[TimeToLiveResponse] = deriveDecoder
 }
 
 final case class PointResponse(
