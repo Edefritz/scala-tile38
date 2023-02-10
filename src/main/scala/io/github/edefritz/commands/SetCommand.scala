@@ -53,7 +53,7 @@ final case class SetCommand(
           .add(inputFormat.keyword)
           .add(lat)
           .add(lon)
-        if (z.isDefined) args.add(z.get)
+        z.foreach(args.add)
       case SetObject(geojson) => args.add(inputFormat.keyword).add(geojson)
       case SetBounds(minlat, minlon, maxlat, maxlon) =>
         args.add(inputFormat.keyword).add(minlat).add(minlon).add(maxlat).add(maxlon)
