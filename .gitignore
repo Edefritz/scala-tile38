@@ -18,4 +18,5 @@ project/plugins/project/
 .idea
 
 data/*
+src/test/data/*
 .bsp/*
