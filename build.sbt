@@ -13,7 +13,7 @@ Test / parallelExecution := false
 ThisBuild / name := "scala-tile38"
 
 // library version
-ThisBuild / version := "0.1"
+ThisBuild / version := "0.2"
 
 // groupId, SCM, license information
 ThisBuild / organization := "io.github.edefritz"

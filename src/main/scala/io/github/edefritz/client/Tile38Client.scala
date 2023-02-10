@@ -22,6 +22,7 @@ object Tile38Client {
   private final val Codec: StringCodec = StringCodec.UTF8
   private final val OutputJsonCommand  = OutputCommand(OutputCommand.Json)
 
+  // TODO: How can we reuse the connection? Right now it is closed after every command
   def forAsync[F[_]: Async](connectionString: String): Tile38Client[F] =
     new Tile38Client[F] {
       private lazy val client: RedisClient = RedisClient.create(connectionString)
