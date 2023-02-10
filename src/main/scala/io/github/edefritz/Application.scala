@@ -10,7 +10,7 @@ object Application extends IOApp {
   val connection               = "redis://localhost:9851"
   val client: Tile38Client[IO] = Tile38Client.forAsync[IO](connection)
 
-  val geojson =
+  val geojson: String =
     """
        {
         "type": "Point",
@@ -34,11 +34,11 @@ object Application extends IOApp {
 //      )
       //input <- client.exec(SetCommand("fleet", "truck1", inputFormat = SetCommand.SetString("MyString")))
       input <- client.exec(
-        SetCommand("fleet", "truck3", inputFormat = SetCommand.Point(1, 2), ex = 1, setCondition = Exists())
+        SetCommand("fleet", "truck3", inputFormat = SetCommand.Point(1, 2), ex = 1, setCondition = Some(Exists()))
       )
       //input  <- client.exec(SetCommand("fleet", "truck1", inputFormat = SetCommand.Hash("9tbnwg")))
       result <- client.exec(GetCommand("fleet", "truck3", withFields = true, outputFormat = GetCommand.Object))
-      _      <- IO.delay(print(input, result))
+      _      <- IO.delay(print(result))
     } yield ExitCode.Success
 
 }

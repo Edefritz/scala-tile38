@@ -1,6 +1,6 @@
 package io.github.edefritz.client
 
-import cats.effect.kernel.{ Async, Resource, Sync }
+import cats.effect.kernel.{ Async, Resource }
 import cats.syntax.all._
 import io.circe.parser
 import io.github.edefritz.commands._
