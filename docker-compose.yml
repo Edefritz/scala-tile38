@@ -4,7 +4,5 @@ services:
   tile38:
     image: tile38/tile38:1.30.2
     command: tile38-server -vv -p 9851
-    volumes:
-      - ./src/test/data:/data
     ports:
       - "9851:9851"
