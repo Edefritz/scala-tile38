@@ -40,6 +40,7 @@ class GetTest extends AsyncFunSuite with BeforeAndAfterAll with JsonAssertions {
 
     // ACT
     for {
+      _ <- client.exec(SetCommand(key, id, inputFormat = SetPoint(1, 1))).unsafeToFuture()
       result <- client.exec(GetCommand(key, id, outputFormat = GetCommand.Point)).unsafeToFuture()
     } yield result match {
       // ASSERT
