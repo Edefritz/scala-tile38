@@ -45,7 +45,7 @@ ObjectResponse(true,8.208µs,{
 
 Add dependency to your build.sbt
 ```
-libraryDependencies += "io.github.edefritz" % "scala-tile38" % "0.1"
+libraryDependencies += "io.github.edefritz" % "scala-tile38" % "2.0.0.pre1"
 ```
 
 ### Test
