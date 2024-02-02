@@ -1,7 +1,7 @@
 import Dependencies._
 import xerial.sbt.Sonatype.autoImport.sonatypeRepository
 
-ThisBuild / scalaVersion := "2.13.4"
+ThisBuild / scalaVersion := "2.13.12"
 ThisBuild / version := "0.1.0-SNAPSHOT"
 ThisBuild / organization := "io.github"
 ThisBuild / organizationName := "edefritz"
@@ -13,7 +13,7 @@ Test / parallelExecution := false
 ThisBuild / name := "scala-tile38"
 
 // library version
-ThisBuild / version := "0.1"
+ThisBuild / version := "0.2"
 
 // groupId, SCM, license information
 ThisBuild / organization := "io.github.edefritz"
@@ -50,5 +50,3 @@ lazy val root = (project in file("."))
     name := "scala-tile38",
     libraryDependencies ++= projectDeps
   )
-
-testFrameworks += new TestFramework("weaver.framework.CatsEffect")

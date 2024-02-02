@@ -1,6 +1,6 @@
 package io.github.edefritz.client
 
-import cats.effect.kernel.{ Async, Resource, Sync }
+import cats.effect.kernel.{ Async, Resource }
 import cats.syntax.all._
 import io.circe.parser
 import io.github.edefritz.commands._
@@ -22,6 +22,7 @@ object Tile38Client {
   private final val Codec: StringCodec = StringCodec.UTF8
   private final val OutputJsonCommand  = OutputCommand(OutputCommand.Json)
 
+  // TODO: How can we reuse the connection? Right now it is closed after every command
   def forAsync[F[_]: Async](connectionString: String): Tile38Client[F] =
     new Tile38Client[F] {
       private lazy val client: RedisClient = RedisClient.create(connectionString)
