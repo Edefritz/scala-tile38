@@ -10,7 +10,7 @@ final case class GetCommand(
     key: String,
     id: String,
     withFields: Boolean = false,
-    outputFormat: GetCommandArgument with GetCommandOutputFormat
+    outputFormat: GetCommandArgument with GetCommandOutputFormat = GetCommand.Object
 ) extends Tile38Command {
   override val protocolKeyword: ProtocolKeyword = CommandType.GET
   override def compileArguments(): Try[CommandArgs[String, String]] = {

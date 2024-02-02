@@ -2,9 +2,8 @@ package io.github.edefritz.test.commands
 
 import cats.effect._
 import cats.effect.unsafe.implicits.global
-import io.github.edefritz.Application.connection
 import io.github.edefritz.client.Tile38Client
-import io.github.edefritz.commands.SetCommand.{ Exists, NotExists, SetCondition, Point => SetPoint }
+import io.github.edefritz.commands.SetCommand.{ Exists, NotExists, Point => SetPoint }
 import io.github.edefritz.commands.{ GetCommand, SetCommand, TimeToLiveCommand }
 import io.github.edefritz.responses._
 import io.github.edefritz.test.util.JsonAssertions
@@ -14,7 +13,7 @@ import org.scalatest.funsuite.AsyncFunSuite
 import java.util.UUID
 
 class SetTest extends AsyncFunSuite with BeforeAndAfterAll with JsonAssertions {
-
+  val connection               = "redis://localhost:9851"
   private val client: Tile38Client[IO] = Tile38Client.forAsync[IO](connection)
 
   test("Test set valid point command") {

@@ -3,7 +3,6 @@ package io.github.edefritz.test.commands
 import cats.effect._
 import cats.effect.unsafe.implicits.global
 import io.circe.Json
-import io.github.edefritz.Application.connection
 import io.github.edefritz.client.Tile38Client
 import io.github.edefritz.commands.{ GetCommand, SetCommand }
 import io.github.edefritz.commands.SetCommand.{ Point => SetPoint }
@@ -16,6 +15,7 @@ import java.util.UUID
 
 class GetTest extends AsyncFunSuite with BeforeAndAfterAll with JsonAssertions {
 
+  val connection               = "redis://localhost:9851"
   private val client: Tile38Client[IO] = Tile38Client.forAsync[IO](connection)
   // ARRANGE
   private val key = UUID.randomUUID().toString

@@ -20,8 +20,12 @@ object Tile38Response {
       // TODO: Do this nicer
       if (cursor.downField("point").succeeded) cursor.as[PointResponse]
       else if (cursor.downField("hash").succeeded) cursor.as[HashResponse]
+      else if (cursor.downField("hashes").succeeded) cursor.as[HashesResponse]
       else if (cursor.downField("bounds").succeeded) cursor.as[BoundsResponse]
       else if (cursor.downField("object").succeeded) cursor.as[ObjectResponse]
+      else if (cursor.downField("objects").succeeded) cursor.as[ObjectsResponse]
+      else if (cursor.downField("ids").succeeded) cursor.as[IdsResponse]
+      else if (cursor.downField("count").succeeded) cursor.as[CountResponse]
       else if (cursor.downField("ttl").succeeded) cursor.as[TimeToLiveResponse]
       else if (cursor.downField("err").succeeded) cursor.as[Tile38ReponseError]
       else if (cursor.downField("ok").succeeded) cursor.as[Tile38SuccessfulResponse]
@@ -89,6 +93,48 @@ case class ObjectResponse(
 ) extends Tile38Response
 object ObjectResponse {
   lazy implicit val decoder: Decoder[ObjectResponse] = deriveDecoder
+}
+
+case class ObjectsResponse(
+                           override val ok: Boolean,
+                           override val elapsed: String,
+                           `objects`: Json
+                         ) extends Tile38Response
+object ObjectsResponse {
+  lazy implicit val decoder: Decoder[ObjectsResponse] = deriveDecoder
+}
+
+final case class HashesResponse(
+                                 override val ok: Boolean,
+                                 override val elapsed: String,
+                                 hashes: Json
+                               ) extends Tile38Response
+object HashesResponse {
+  implicit val decoder: Decoder[HashesResponse] = deriveDecoder
+}
+
+final case class CountResponse(
+    override val ok: Boolean,
+    count: Int,
+    cursor: Int,
+    override val elapsed: String
+) extends Tile38Response
+
+object CountResponse {
+  implicit val decoder: Decoder[CountResponse] = deriveDecoder
+}
+
+
+final case class IdsResponse(
+    override val ok: Boolean,
+    ids: List[String],
+    count: Int,
+    cursor: Int,
+    override val elapsed: String
+) extends Tile38Response
+
+object IdsResponse {
+  implicit val decoder: Decoder[IdsResponse] = deriveDecoder
 }
 
 final case class Tile38ReponseError(override val ok: Boolean, override val elapsed: String, err: String)
