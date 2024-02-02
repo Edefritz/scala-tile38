@@ -1,4 +1,4 @@
-package io.github.edefritz.customCommandTypes
+package io.github.edefritz.commands
 
 import io.lettuce.core.protocol.ProtocolKeyword
 

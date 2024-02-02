@@ -1,11 +1,12 @@
 import sbt._
 
 object Dependencies {
-  lazy val scalaTest = "org.scalatest" %% "scalatest" % "3.2.2"
   val lettuce = "io.lettuce" % "lettuce-core" % "5.0.2.RELEASE"
 
+  val scalatest: Seq[ModuleID] = Seq("org.scalatest" %% "scalatest" % "3.2.15" % "test")
+
   val circeVersion = "0.14.1"
-  val circe = Seq(
+  val circe: Seq[ModuleID] = Seq(
     "io.circe" %% "circe-core",
     "io.circe" %% "circe-generic",
     "io.circe" %% "circe-parser",
@@ -13,10 +14,15 @@ object Dependencies {
     "io.circe" %% "circe-shapes"
   ).map(_ % circeVersion)
 
-  val scalaMock = Seq(
-    "org.scalamock" %% "scalamock" % "5.1.0" % Test,
-    "org.scalatest" %% "scalatest" % "3.1.0" % Test
+  val catsVersion = "2.9.0"
+  val cats: Seq[ModuleID] = Seq(
+    "org.typelevel" %% "cats-core" % catsVersion
   )
 
-  val projectDeps = circe ++ Seq(lettuce, scalaTest % Test) ++ scalaMock
+  val catsEffectVersion = "3.4.5"
+  val catsEffect: Seq[ModuleID] = Seq(
+    "org.typelevel" %% "cats-effect" % catsEffectVersion
+  )
+
+  val projectDeps: Seq[sbt.ModuleID] = circe ++ cats ++ catsEffect ++ Seq(lettuce) ++ scalatest
 }
