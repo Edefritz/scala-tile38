@@ -276,7 +276,7 @@ class ScanCommandTest extends AsyncFunSuite with BeforeAndAfterAll with JsonAsse
     } yield result match {
       // ASSERT
       case ObjectsResponse(_, _, objects) =>
-        assert(objects.asArray.get.size == 1)
+        assert(objects.asArray.get.size == keySize)
       case other => fail(s"Didn't receive a proper response: ${other.toString}")
     }
 

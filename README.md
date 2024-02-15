@@ -2,7 +2,7 @@
 
 This is an async [tile38](https://tile38.com/) client written in Scala. It abstracts away the complexity of implementing the redis protocol and compose tile38 commands by hand. Instead, you get a convenient API to interact with tile38.
 
-Version 2 uses the cats-effect library to provide a more functional approach to async programming in Scala.
+Version 1 uses the cats-effect library to provide a more functional approach to async programming in Scala.
 
 This is a work in progress. Feel free to test and play around with it, but I wouldn't recommend using it in a prod environment.
 
@@ -35,17 +35,17 @@ ObjectResponse(true,8.208µs,{
 
 ## Supported Commands
 
-- GET
-- OUTPUT
 - SET
-- TTL
+- GET
 - SCAN
+- OUTPUT
+- TTL
 
 ## Installation
 
 Add dependency to your build.sbt
 ```
-libraryDependencies += "io.github.edefritz" % "scala-tile38" % "2.0.0.pre1"
+libraryDependencies += "io.github.edefritz" % "scala-tile38" % "1.0.0.alpha1"
 ```
 
 ### Test
