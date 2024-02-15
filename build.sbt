@@ -2,7 +2,7 @@ import Dependencies._
 import xerial.sbt.Sonatype.autoImport.sonatypeRepository
 
 ThisBuild / scalaVersion := "2.13.12"
-ThisBuild / version := "2.0.0-pre1"
+ThisBuild / version := "1.0.0-alpha1"
 ThisBuild / organization := "io.github"
 ThisBuild / organizationName := "edefritz"
 ThisBuild / sonatypeRepository := "https://s01.oss.sonatype.org/service/local"
@@ -11,9 +11,6 @@ Test / parallelExecution := false
 
 // library name
 ThisBuild / name := "scala-tile38"
-
-// library version
-ThisBuild / version := "2.0.0-pre1"
 
 // groupId, SCM, license information
 ThisBuild / organization := "io.github.edefritz"

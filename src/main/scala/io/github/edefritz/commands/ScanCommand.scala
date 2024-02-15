@@ -1,23 +1,17 @@
 package io.github.edefritz.commands
 
-import io.github.edefritz.commands.ScanCommand.{
-  Cursor,
-  Limit,
-  MatchExpression,
-  ScanCommandArgument,
-  ScanCommandOutputFormat,
-  SortOrder
-}
+import io.github.edefritz.commands.ScanCommand.{Cursor, Limit, MatchExpression, ScanCommandArgument, ScanCommandOutputFormat, SortOrder, Where}
 import io.lettuce.core.codec.StringCodec
-import io.lettuce.core.protocol.{ CommandArgs, ProtocolKeyword }
+import io.lettuce.core.protocol.{CommandArgs, ProtocolKeyword}
 
-import scala.util.{ Success, Try }
+import scala.util.{Success, Try}
 
 final case class ScanCommand(
     key: String,
     cursor: Option[Cursor] = None,
     limit: Option[Limit] = None,
     matchExpression: Option[MatchExpression] = None,
+    where: List[Where] = List.empty,
     outputFormat: Option[ScanCommandArgument with ScanCommandOutputFormat] = None,
     sort: Option[ScanCommandArgument with SortOrder] = None
 ) extends Tile38Command {
@@ -36,6 +30,13 @@ final case class ScanCommand(
 
     matchExpression.foreach { m =>
       args.add(m.keyword).add(m.matchExpression)
+    }
+
+    where.foreach { w =>
+      args.add(w.keyword)
+      w.expression.foreach { e =>
+        args.add(e)
+      }
     }
 
     sort.foreach { s =>
@@ -66,6 +67,10 @@ object ScanCommand {
 
   final case class MatchExpression(matchExpression: String) extends ScanCommandArgument {
     override val keyword: String = "MATCH"
+  }
+
+  final case class Where(expression: List[String]) extends ScanCommandArgument {
+    override val keyword: String = "WHERE"
   }
 
   sealed trait SortOrder
